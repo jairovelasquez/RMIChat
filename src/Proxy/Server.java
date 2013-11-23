@@ -7,14 +7,10 @@ package Proxy;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -28,7 +24,7 @@ public class Server extends UnicastRemoteObject implements IServer {
     public Server() throws RemoteException {
         super();
         Clients = new HashMap<String, IClient>();
-        System.out.println("Sistema listo.\n");
+        System.out.println("Server up!\n");
         new Thread() {
             public void run() {
                 while (true) {
@@ -47,7 +43,7 @@ public class Server extends UnicastRemoteObject implements IServer {
                                 try {
                                     System.out.print("User: " + ((IClient)item).getUser() + " Pass: " + ((IClient)item).getPass() + "\n");
                                 } catch (RemoteException ex) {
-                                    System.out.println("Error");
+                                    System.out.println("Error getting client information.");
                                 }
                             }
                             System.out.println("");
