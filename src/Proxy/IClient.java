@@ -21,6 +21,10 @@ public interface IClient extends Remote {
     
     public String getUser() throws RemoteException;
     
+    public void setPass(String Pass) throws RemoteException;
+    
+    public String getPass() throws RemoteException;
+    
     public void setID(int ID) throws RemoteException;
     
     public int getID() throws RemoteException;
