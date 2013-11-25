@@ -14,9 +14,6 @@ import java.rmi.RemoteException;
  * @author JairoDavid
  */
 public interface IClient extends Remote {
-    
-    public void getMessage(String mensaje) throws RemoteException;
-    
     public void setUser(String User) throws RemoteException;
     
     public String getUser() throws RemoteException;
@@ -28,4 +25,8 @@ public interface IClient extends Remote {
     public void setID(int ID) throws RemoteException;
     
     public int getID() throws RemoteException;
+    
+    public void sendMessage(Message Message) throws RemoteException;
+ 
+    public void getMessage(Message Message) throws RemoteException;
 }

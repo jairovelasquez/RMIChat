@@ -19,4 +19,8 @@ public interface IServer extends Remote {
     public void registerClient(IClient c) throws RemoteException;
     
     public void releaseClient(IClient c) throws RemoteException;
+    
+    public void sendMessage(Message Message) throws RemoteException;
+ 
+    public void getMessage(Message Message) throws RemoteException;
 }
