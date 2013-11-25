@@ -20,7 +20,7 @@ public interface IServer extends Remote {
     
     public void releaseClient(IClient c) throws RemoteException;
     
-    public void sendMessage(Message Message) throws RemoteException;
+    public void sendMessage() throws RemoteException;
  
     public void getMessage(Message Message) throws RemoteException;
 }

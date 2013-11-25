@@ -115,14 +115,30 @@ public class Server extends UnicastRemoteObject implements IServer {
 
     public void getMessage(Message Message) {
         Requests.add(Message);
-        log.add("Se recibió mensaje desde " + Message.getStart() + " hacia " + Message.getEnd() + ".");
-        sendMessage(Message);
+        if (Message.getEnd() == -1) {
+            log.add("Se recibió un broadcast desde " + Message.getStart());
+        } else {
+            log.add("Se recibió mensaje desde " + Message.getStart() + " hacia " + Message.getEnd() + ".");
+        }
+        sendMessage();
     }
 
-    public void sendMessage(Message Message) {
+    public void sendMessage() {
         try {
-            findUser(Requests.peek().getEnd()).getMessage(Requests.peek());
-            log.add("Se envió mensaje hacia " + Requests.peek().getEnd() + " desde " + Requests.poll().getStart() + ".");
+            if (Requests.peek().getEnd() == -1) {
+                Iterator users = Clients.values().iterator();
+                while (users.hasNext()) {
+                    Object item = users.next();
+                    if (((IClient) item).getID() != Requests.peek().getStart()) {
+                        ((IClient) item).getMessage(Requests.peek());
+                    }
+                }
+                log.add(Requests.peek().getStart() + " envió un broadcast.");
+                Requests.poll();
+            } else { 
+                findUser(Requests.peek().getEnd()).getMessage(Requests.peek());
+                log.add("Se envió mensaje hacia " + Requests.peek().getEnd() + " desde " + Requests.poll().getStart() + ".");
+            }
         } catch (RemoteException ex) {
             System.out.println("Error enviando mensaje.");
         }

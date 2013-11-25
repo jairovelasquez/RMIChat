@@ -49,6 +49,10 @@ public class Message implements Serializable {
     }
     
     public String toString() {
-        return this.Start + " says to " + this.End +": " + this.Message;
+        if (this.End != -1) {
+            return this.Start + " says to " + this.End +": " + this.Message;
+        } else {
+            return this.Start + " sent a broadcast: " + this.Message;
+        }
     }
 }
