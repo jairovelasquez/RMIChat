@@ -26,9 +26,11 @@ public class Server extends UnicastRemoteObject implements IServer {
     private Queue<Message> Requests;
     private int i = 1;
     private ArrayList<String> log = new ArrayList();
+    private ArrayList<String> usuarios;
 
     public Server() throws RemoteException {
         super();
+        this.usuarios = new ArrayList();
         Clients = new HashMap<>();
         Requests = new LinkedList<>();
         log.add("Server up!");
@@ -44,21 +46,7 @@ public class Server extends UnicastRemoteObject implements IServer {
                     } while (resp.length() == 0);
                     switch (resp.toLowerCase().charAt(0)) {
                         case 'u':
-                            if (Clients.size() > 0) {
-                                System.out.println("\nShowing registered clients.");
-                                Iterator users = Clients.values().iterator();
-                                while (users.hasNext()) {
-                                    Object item = users.next();
-                                    try {
-                                        System.out.print("User: " + ((IClient) item).getUser() + " Pass: " + ((IClient) item).getPass() + "\n");
-                                    } catch (RemoteException ex) {
-                                        System.out.println("Error getting client information.");
-                                    }
-                                }
-                                System.out.println();
-                            } else {
-                                System.out.println("\nNo hay clientes aún.\n");
-                            }
+                            getUsers();
                             break;
                         case 'l':
                             System.out.println("\nPrinting Log.");
@@ -84,6 +72,7 @@ public class Server extends UnicastRemoteObject implements IServer {
             c.setID(i++);
             log.add("Se registró al cliente " + c.getID() + ".");
         } catch (RemoteException ex) {
+            System.out.println(ex.toString());
             System.out.println("Fallo asignándole ID a cliente.");
         }
     }
@@ -143,5 +132,28 @@ public class Server extends UnicastRemoteObject implements IServer {
         } catch (RemoteException ex) {
             System.out.println("Error enviando mensaje.");
         }
+    }
+    
+    public ArrayList<String> getUsers() {
+        usuarios.clear();
+        if (Clients.size() > 0) {
+            System.out.println("\nObtener Usuarios.");
+            Iterator users = Clients.values().iterator();
+            while (users.hasNext()) {                
+                Object item = users.next();
+                
+                try {
+                    usuarios.add(((IClient) item).getUser());                    
+                    //System.out.print("User: " + ((IClient) item).getUser() + " Pass: " + ((IClient) item).getPass() + "\n");
+                    System.out.print("\nUsuario: " + ((IClient) item).getUser());
+                } catch (RemoteException ex) {
+                    System.out.println("Error getting client information.");
+                }
+            }
+            System.out.println();
+        } else {
+            System.out.println("\nNo hay clientes aún.\n");
+        }
+        return this.usuarios;
     }
 }

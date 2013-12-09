@@ -6,13 +6,26 @@ package Proxy;
 
 import java.awt.Color;
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 
 /**
  *
@@ -23,19 +36,39 @@ public class Landing extends javax.swing.JFrame {
     /**
      * Creates new form RMI_App
      */
-    public Landing(String usuario) {
-        initComponents();
-        this.setVisible(true);
-        Color background = new Color(95,100,200);
-        Color containerColor = new Color(250,250,250);
-        Color headerColor = new Color(223,223,216);
-        Color content = new Color(244,244,238);
-        getContentPane().setBackground(background);
-        container.setBackground(containerColor);
-        header.setBackground(headerColor);
-        left_sidebar.setBackground(content);
-        right_sidebar.setBackground(content);        
-        
+    
+    private Client Client;
+    private ArrayList<String> usuarios; 
+    private HTMLEditorKit kit = new HTMLEditorKit();
+    private HTMLDocument doc = new HTMLDocument();    
+    public Landing(Client Client) {
+        try {
+            initComponents();
+            this.Client = Client;
+            this.setVisible(true);
+            Color background = new Color(95,100,200);
+            Color containerColor = new Color(250,250,250);
+            Color headerColor = new Color(223,223,216);
+            Color content = new Color(244,244,238);
+            getContentPane().setBackground(background);
+            container.setBackground(containerColor);
+            header.setBackground(headerColor);        
+            right_sidebar.setBackground(content);
+            left_sidebar.setBackground(content);
+            jScroll.getViewport().setBackground(containerColor);
+            
+            txtuserid.setText("Mi Usuario es: "+Client.getID()); 
+            
+            textPanel.setContentType("text/html");
+
+            textPanel.setEditorKit(kit);
+            textPanel.setDocument(doc);
+            kit.insertHTML(doc, doc.getLength(), "<b>Chat #", 0, 0, HTML.Tag.B);
+        } catch (BadLocationException ex) {
+            Logger.getLogger(Landing.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Landing.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -49,17 +82,41 @@ public class Landing extends javax.swing.JFrame {
 
         container = new javax.swing.JPanel();
         header = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        left_sidebar = new javax.swing.JPanel();
+        foto = new javax.swing.JLabel();
+        txtuserid = new javax.swing.JLabel();
+        cerrarSesion = new javax.swing.JButton();
         right_sidebar = new javax.swing.JPanel();
+        messagePanel = new javax.swing.JScrollPane();
+        textPanel = new javax.swing.JTextPane();
+        btnEnviarMensaje = new javax.swing.JButton();
+        btnCancelarMensaje = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        mensajeAEnviar = new javax.swing.JTextArea();
+        jScroll = new javax.swing.JScrollPane();
+        left_sidebar = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        jComboBox1 = new javax.swing.JComboBox();
+        jSeparator2 = new javax.swing.JSeparator();
+        btnActualizar = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        lista = new javax.swing.JList();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(940, 700));
         setPreferredSize(new java.awt.Dimension(950, 700));
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Proxy/Images/user.png"))); // NOI18N
-        jLabel1.setText("jLabel1");
-        jLabel1.setPreferredSize(new java.awt.Dimension(78, 78));
+        foto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ProxyImages/user.png"))); // NOI18N
+
+        txtuserid.setText("Mi Usuario es: ");
+
+        cerrarSesion.setText("Salir");
+        cerrarSesion.setPreferredSize(new java.awt.Dimension(78, 78));
+        cerrarSesion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cerrarSesionActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout headerLayout = new javax.swing.GroupLayout(header);
         header.setLayout(headerLayout);
@@ -67,42 +124,147 @@ public class Landing extends javax.swing.JFrame {
             headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(headerLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(foto)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(txtuserid)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(cerrarSesion, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         headerLayout.setVerticalGroup(
             headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(headerLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(19, Short.MAX_VALUE))
-        );
-
-        left_sidebar.setPreferredSize(new java.awt.Dimension(250, 520));
-
-        javax.swing.GroupLayout left_sidebarLayout = new javax.swing.GroupLayout(left_sidebar);
-        left_sidebar.setLayout(left_sidebarLayout);
-        left_sidebarLayout.setHorizontalGroup(
-            left_sidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 250, Short.MAX_VALUE)
-        );
-        left_sidebarLayout.setVerticalGroup(
-            left_sidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 520, Short.MAX_VALUE)
+                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(headerLayout.createSequentialGroup()
+                        .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtuserid)
+                            .addComponent(foto))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(cerrarSesion, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         right_sidebar.setPreferredSize(new java.awt.Dimension(544, 520));
+
+        messagePanel.setViewportView(textPanel);
+
+        btnEnviarMensaje.setText("Enviar");
+        btnEnviarMensaje.setPreferredSize(new java.awt.Dimension(138, 78));
+        btnEnviarMensaje.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEnviarMensajeActionPerformed(evt);
+            }
+        });
+
+        btnCancelarMensaje.setText("Cancelar");
+        btnCancelarMensaje.setPreferredSize(new java.awt.Dimension(138, 78));
+
+        mensajeAEnviar.setColumns(20);
+        mensajeAEnviar.setRows(5);
+        jScrollPane2.setViewportView(mensajeAEnviar);
 
         javax.swing.GroupLayout right_sidebarLayout = new javax.swing.GroupLayout(right_sidebar);
         right_sidebar.setLayout(right_sidebarLayout);
         right_sidebarLayout.setHorizontalGroup(
             right_sidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 544, Short.MAX_VALUE)
+            .addGroup(right_sidebarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(right_sidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(messagePanel)
+                    .addGroup(right_sidebarLayout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 408, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(right_sidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnEnviarMensaje, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
+                            .addComponent(btnCancelarMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                        .addGap(8, 8, 8)))
+                .addContainerGap())
         );
         right_sidebarLayout.setVerticalGroup(
             right_sidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 520, Short.MAX_VALUE)
+            .addGroup(right_sidebarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(messagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(right_sidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(right_sidebarLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane2)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, right_sidebarLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                        .addComponent(btnEnviarMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnCancelarMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(33, 33, 33))))
         );
+
+        jScroll.setPreferredSize(null);
+
+        left_sidebar.setMaximumSize(null);
+        left_sidebar.setMinimumSize(null);
+        left_sidebar.setPreferredSize(new java.awt.Dimension(240, 518));
+
+        jLabel2.setText("Usuarios");
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Conectados", "No Conectados", "Todos" }));
+
+        btnActualizar.setText("Actualizar Lista");
+        btnActualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnActualizarActionPerformed(evt);
+            }
+        });
+
+        jScrollPane1.setViewportView(lista);
+
+        javax.swing.GroupLayout left_sidebarLayout = new javax.swing.GroupLayout(left_sidebar);
+        left_sidebar.setLayout(left_sidebarLayout);
+        left_sidebarLayout.setHorizontalGroup(
+            left_sidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(left_sidebarLayout.createSequentialGroup()
+                .addGroup(left_sidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(left_sidebarLayout.createSequentialGroup()
+                        .addGap(105, 105, 105)
+                        .addComponent(jLabel2)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(left_sidebarLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(left_sidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jSeparator1)
+                            .addGroup(left_sidebarLayout.createSequentialGroup()
+                                .addGap(10, 10, 10)
+                                .addGroup(left_sidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnActualizar)
+                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(0, 11, Short.MAX_VALUE))))
+                    .addGroup(left_sidebarLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jSeparator2))
+                    .addGroup(left_sidebarLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        left_sidebarLayout.setVerticalGroup(
+            left_sidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(left_sidebarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(13, 13, 13)
+                .addComponent(btnActualizar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 436, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        jScroll.setViewportView(left_sidebar);
 
         javax.swing.GroupLayout containerLayout = new javax.swing.GroupLayout(container);
         container.setLayout(containerLayout);
@@ -113,7 +275,7 @@ public class Landing extends javax.swing.JFrame {
                 .addGroup(containerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(header, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(containerLayout.createSequentialGroup()
-                        .addComponent(left_sidebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(right_sidebar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
@@ -123,11 +285,11 @@ public class Landing extends javax.swing.JFrame {
             .addGroup(containerLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(header, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(containerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(left_sidebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(right_sidebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(containerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(right_sidebar, javax.swing.GroupLayout.DEFAULT_SIZE, 579, Short.MAX_VALUE)
+                    .addComponent(jScroll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(44, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -150,11 +312,56 @@ public class Landing extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
+        
+        this.usuarios = Client.getOnlineUsers();
+        final DefaultListModel model = new DefaultListModel();
+        
+        for(String u:usuarios){
+            model.addElement("Usuario "+u);
+        }
+        lista.setModel(model);
+        
+    }//GEN-LAST:event_btnActualizarActionPerformed
+
+    private void btnEnviarMensajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarMensajeActionPerformed
+        try {
+            kit.insertHTML(doc, doc.getLength(), "<font color='red'><p>"+mensajeAEnviar.getText()+"</p></font>", 0, 0,null);
+        } catch (BadLocationException ex) {
+            Logger.getLogger(Landing.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Landing.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }//GEN-LAST:event_btnEnviarMensajeActionPerformed
+
+    private void cerrarSesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cerrarSesionActionPerformed
+
+        Client.go();
+        System.exit(0);
+    }//GEN-LAST:event_cerrarSesionActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnActualizar;
+    private javax.swing.JButton btnCancelarMensaje;
+    private javax.swing.JButton btnEnviarMensaje;
+    private javax.swing.JButton cerrarSesion;
     private javax.swing.JPanel container;
+    private javax.swing.JLabel foto;
     private javax.swing.JPanel header;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JScrollPane jScroll;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
     private javax.swing.JPanel left_sidebar;
+    private javax.swing.JList lista;
+    private javax.swing.JTextArea mensajeAEnviar;
+    private javax.swing.JScrollPane messagePanel;
     private javax.swing.JPanel right_sidebar;
+    private javax.swing.JTextPane textPanel;
+    private javax.swing.JLabel txtuserid;
     // End of variables declaration//GEN-END:variables
 }

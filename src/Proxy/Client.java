@@ -8,9 +8,12 @@ package Proxy;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Client extends UnicastRemoteObject implements IClient {
     private int ID;
@@ -18,6 +21,7 @@ public class Client extends UnicastRemoteObject implements IClient {
     private String Pass;
     private final IServer Server;
     private Queue<Message> Messages;
+    private ArrayList<String> usuarios = new ArrayList();
     
     public Client(String User, String Pass, final IServer Server) throws RemoteException {
         super();
@@ -107,7 +111,7 @@ public class Client extends UnicastRemoteObject implements IClient {
     
     public void sendMessage(Message Message)  {
         try {
-            Server.getMessage(Message);
+            Server.getMessage(Message);            
         } catch (RemoteException ex) {
             System.out.println("Error enviando mensaje al servidor.");
         }
@@ -116,4 +120,19 @@ public class Client extends UnicastRemoteObject implements IClient {
     public String toString(){
         return "ID: " + this.ID + "\nUser: " + this.User + "\n";
     }
+    
+    @Override
+    public ArrayList<String> getOnlineUsers(){
+        this.usuarios.clear();
+        try {
+            System.out.println("Tamaño de usuarios: "+Server.getUsers());
+            this.usuarios = Server.getUsers();
+            
+        } catch (RemoteException ex) {
+            System.out.println("Error al obtener los usuarios."+ex.toString());
+        }
+        
+        return this.usuarios;
+    }
+
 }

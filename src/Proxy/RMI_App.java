@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
 public class RMI_App extends javax.swing.JFrame {
 
     /**
-     * Creates new form RMI_App
+     *
      */
     public RMI_App() {
         initComponents();
@@ -150,11 +150,27 @@ public class RMI_App extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnIniciarSesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIniciarSesionActionPerformed
-        // TODO add your handling code here:
+        // TODO add your handling code here:        
         if(txtUser.getText().equals(txtPassword.getText())){
             this.dispose();
-            Landing landing = new Landing(txtUser.getText());
-            clientePanel cp = new clientePanel();
+            Random r = new Random();
+            String u = String.valueOf(10000 + r.nextInt(9999)), p = u;
+            System.out.println("Client: " + u);            
+            try {
+                int i = 0;
+                Registry Reg = LocateRegistry.getRegistry("localhost", 1993);
+                IServer Server = (IServer) Reg.lookup("Chat");
+                Client Client = new Client(u,p,Server);
+                Server.registerClient(Client);
+                Landing landing = new Landing(Client);
+                clientePanel cp = new clientePanel();                
+            } catch (RemoteException ex) {
+                System.out.println(ex.toString());
+                System.out.println("Error al conectarse al Servidor.");
+            } catch (NotBoundException ex) {
+                System.out.println("Error en el nombre del Servidor.");
+            }            
+            
         } else {
             Toolkit.getDefaultToolkit().beep();
             JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecto.", "Error", 0);  

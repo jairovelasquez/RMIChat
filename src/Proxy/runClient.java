@@ -18,15 +18,16 @@ import java.util.Scanner;
  * @author JairoDavid
  */
 public class runClient {
-    
+     
     public static void startClient(String u, String p) {
         try {
             int i = 0;
-            Registry Reg = LocateRegistry.getRegistry("127.0.0.1", 1993);
+            Registry Reg = LocateRegistry.getRegistry("localhost", 1993);
             IServer Server = (IServer) Reg.lookup("Chat");
             Client Client = new Client(u,p,Server);
             Server.registerClient(Client);
         } catch (RemoteException ex) {
+            System.out.println(ex.toString());
             System.out.println("Error al conectarse al Servidor.");
         } catch (NotBoundException ex) {
             System.out.println("Error en el nombre del Servidor.");

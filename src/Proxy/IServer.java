@@ -8,6 +8,7 @@ package Proxy;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 /**
  *
@@ -23,4 +24,6 @@ public interface IServer extends Remote {
     public void sendMessage() throws RemoteException;
  
     public void getMessage(Message Message) throws RemoteException;
+    
+    public ArrayList<String> getUsers() throws RemoteException;
 }
