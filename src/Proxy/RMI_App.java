@@ -162,8 +162,8 @@ public class RMI_App extends javax.swing.JFrame {
                 IServer Server = (IServer) Reg.lookup("Chat");
                 Client Client = new Client(u,p,Server);
                 Server.registerClient(Client);
-                Landing landing = new Landing(Client);
-                clientePanel cp = new clientePanel();                
+                
+                clientePanel cp = new clientePanel();
             } catch (RemoteException ex) {
                 System.out.println(ex.toString());
                 System.out.println("Error al conectarse al Servidor.");

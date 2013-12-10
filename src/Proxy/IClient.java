@@ -27,9 +27,11 @@ public interface IClient extends Remote {
     
     public int getID() throws RemoteException;
     
-    public void sendMessage(Message Message) throws RemoteException;
+    public void sendMessage(Message Message) throws RemoteException;    
  
     public void getMessage(Message Message) throws RemoteException;
+    
+    public void seConectoUnUsuario() throws RemoteException;
     
     public ArrayList<String> getOnlineUsers() throws RemoteException;
 }

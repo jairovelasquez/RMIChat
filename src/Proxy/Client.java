@@ -21,14 +21,19 @@ public class Client extends UnicastRemoteObject implements IClient {
     private String Pass;
     private final IServer Server;
     private Queue<Message> Messages;
+
+    public Queue<Message> getMessages() {
+        return Messages;
+    }
     private ArrayList<String> usuarios = new ArrayList();
+    private LandingV2 landing;
     
     public Client(String User, String Pass, final IServer Server) throws RemoteException {
         super();
-        this.User = User;
-        this.Pass = Pass;
-        this.Server = Server;
-        Messages = new LinkedList<>();
+        this.User = User;        
+        this.Pass = Pass;        
+        this.Server = Server;        
+        Messages = new LinkedList<>();        
         new Thread() {
             public void run() {
                 while (true) {
@@ -73,6 +78,10 @@ public class Client extends UnicastRemoteObject implements IClient {
         }.start();
     }
     
+    public void seConectoUnUsuario(){
+        this.landing.hello(this.getOnlineUsers());
+    }
+    
     public void go() {
         try {
             Server.releaseClient(this);
@@ -103,10 +112,14 @@ public class Client extends UnicastRemoteObject implements IClient {
     
     public void setID(int ID) {
         this.ID = ID;
+        this.landing = new LandingV2(this);
     }
     
-    public void getMessage(Message Message)  {
+    public void getMessage(Message Message) {
         Messages.add(Message);
+        this.landing.paint();
+        //this.landing.recibirMensaje(Message.getMessage(),Message.getStart());
+        
     }
     
     public void sendMessage(Message Message)  {

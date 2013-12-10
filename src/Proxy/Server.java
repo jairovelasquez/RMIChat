@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -70,9 +72,10 @@ public class Server extends UnicastRemoteObject implements IServer {
         try {
             Clients.put(c.getUser(), c);
             c.setID(i++);
+            this.actualizarListado();
             log.add("Se registró al cliente " + c.getID() + ".");
         } catch (RemoteException ex) {
-            System.out.println(ex.toString());
+            System.out.println("aqui esta fallando" + ex.toString());
             System.out.println("Fallo asignándole ID a cliente.");
         }
     }
@@ -104,9 +107,10 @@ public class Server extends UnicastRemoteObject implements IServer {
     }
 
     public void getMessage(Message Message) {
-        Requests.add(Message);
+        Requests.add(Message);        
         if (Message.getEnd() == -1) {
             log.add("Se recibió un broadcast desde " + Message.getStart());
+            log.add("El mensaje es: "+Message.getMessage());
         } else {
             log.add("Se recibió mensaje desde " + Message.getStart() + " hacia " + Message.getEnd() + ".");
         }
@@ -127,11 +131,30 @@ public class Server extends UnicastRemoteObject implements IServer {
                 Requests.poll();
             } else { 
                 findUser(Requests.peek().getEnd()).getMessage(Requests.peek());
-                log.add("Se envió mensaje hacia " + Requests.peek().getEnd() + " desde " + Requests.poll().getStart() + ".");
+                log.add("Se envió mensaje hacia " + Requests.peek().getEnd() + " desde " + Requests.poll().getStart());
             }
         } catch (RemoteException ex) {
             System.out.println("Error enviando mensaje.");
         }
+    }        
+    
+    public void actualizarListado() {
+        if(Clients.size()> 0) {
+            Iterator users = Clients.values().iterator();
+            
+            while(users.hasNext()) {
+                Object item = users.next();
+                
+                try {
+                    System.out.println("?????");
+                    ((IClient) item).seConectoUnUsuario();
+                } catch (RemoteException ex) {
+                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
+        }
+        
     }
     
     public ArrayList<String> getUsers() {
@@ -143,9 +166,8 @@ public class Server extends UnicastRemoteObject implements IServer {
                 Object item = users.next();
                 
                 try {
-                    usuarios.add(((IClient) item).getUser());                    
-                    //System.out.print("User: " + ((IClient) item).getUser() + " Pass: " + ((IClient) item).getPass() + "\n");
-                    System.out.print("\nUsuario: " + ((IClient) item).getUser());
+                    usuarios.add(""+((IClient) item).getID());
+                    System.out.print("User: " + ((IClient) item).getUser() + " Pass: " + ((IClient) item).getPass() + "\n");
                 } catch (RemoteException ex) {
                     System.out.println("Error getting client information.");
                 }
@@ -154,6 +176,7 @@ public class Server extends UnicastRemoteObject implements IServer {
         } else {
             System.out.println("\nNo hay clientes aún.\n");
         }
+        
         return this.usuarios;
     }
 }

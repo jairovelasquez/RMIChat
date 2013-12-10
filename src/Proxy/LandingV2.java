@@ -5,23 +5,12 @@
 package Proxy;
 
 import java.awt.Color;
-import java.awt.Toolkit;
-import java.io.File;
 import java.io.IOException;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.ArrayList;
-import java.util.Random;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Iterator;
+
 import javax.swing.DefaultListModel;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
@@ -33,23 +22,22 @@ import javax.swing.text.html.HTMLEditorKit;
  *
  * @author rpenav
  */
-public class Landing extends javax.swing.JFrame {
+public class LandingV2 extends javax.swing.JFrame {
 
     /**
      * Creates new form RMI_App
      */
-    
-    private Client Client;
-    private ArrayList<String> usuarios; 
     private HTMLEditorKit kit = new HTMLEditorKit();
     private HTMLDocument doc = new HTMLDocument();
     private int chatUser;
+    private Client client;
+    int cont = 1;
     
-    public Landing() {
+    public LandingV2(Client client) {        
         initComponents();
+        this.client = client;        
         right_sidebar.setVisible(false);        
         this.setVisible(true);
-        Color background = new Color(95,100,200);
         Color containerColor = new Color(250,250,250);
         Color headerColor = new Color(223,223,216);
         Color content = new Color(244,244,238);
@@ -59,26 +47,70 @@ public class Landing extends javax.swing.JFrame {
         right_sidebar.setBackground(content);
         left_sidebar.setBackground(content);
         jScroll.getViewport().setBackground(containerColor);
-
-        txtuserid.setText("Mi Usuario es: "+Client.getID()); 
-
-        textPanel.setContentType("text/html");
+        txtuserid.setText("Soy el usuario: "+client.getID());
+        
         
         lista.addListSelectionListener(new ListSelectionListener(){
 
             @Override
-            public void valueChanged(ListSelectionEvent e) {
+            public void valueChanged(ListSelectionEvent e) {                
                 if(e.getValueIsAdjusting()){
                     if(right_sidebar.isVisible()) {
                         textPanel.setText("");
                     }
                     agregarMensaje("Chateando con: "+lista.getSelectedValue().toString());
-                    chatUser = Integer.parseInt(lista.getSelectedValue().toString());
+                    chatUser = Integer.parseInt(lista.getSelectedValue().toString());                    
                     right_sidebar.setVisible(true);
                 }
             }
         });
+        
     }
+    
+    public void hello(ArrayList<String> array){        
+        final DefaultListModel model = new DefaultListModel();
+        
+        for(String u:array){
+            model.addElement(u);
+        }
+        lista.setModel(model);
+    }
+    
+    public int getOpenChat(){
+        return this.chatUser;
+    }
+    
+    private void agregarMensaje(String mensaje){
+        try {
+            textPanel.setEditorKit(kit);
+            textPanel.setDocument(doc);
+            kit.insertHTML(doc, doc.getLength(), "<b>"+mensaje, 0, 0, HTML.Tag.B);
+        } catch (BadLocationException | IOException ex) {
+            System.out.println(ex);
+        }        
+    }
+    
+    public void paint(){        
+        for (Message item : this.client.getMessages()) {
+            if(item.getStart() == this.chatUser) {
+                recibirMensaje(item.getMessage(),item.getStart());                
+            }
+        }
+    }
+    
+    public void recibirMensaje(String mensaje, int enviador){
+        System.out.println("chatU: "+chatUser+" | Enviador: "+enviador);
+        try {
+            textPanel.setEditorKit(kit);
+            textPanel.setDocument(doc);
+            kit.insertHTML(doc, doc.getLength(),"<font color='blue'><b>"+enviador+" dice :</b></font>" , 0, 0, null);
+            kit.insertHTML(doc, doc.getLength(), "<p>"+mensaje+"</p>", 0, 0,null);
+        } catch (BadLocationException ex) {
+            System.out.println(ex);
+        } catch (IOException ex) {
+            System.out.println(ex);
+        }        
+    }    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -107,13 +139,11 @@ public class Landing extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         jComboBox1 = new javax.swing.JComboBox();
         jSeparator2 = new javax.swing.JSeparator();
-        btnActualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         lista = new javax.swing.JList();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(940, 700));
-        setPreferredSize(new java.awt.Dimension(950, 700));
         setResizable(false);
 
         container.setPreferredSize(new java.awt.Dimension(824, 650));
@@ -219,13 +249,6 @@ public class Landing extends javax.swing.JFrame {
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Conectados", "No Conectados", "Todos" }));
 
-        btnActualizar.setText("Actualizar Lista");
-        btnActualizar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnActualizarActionPerformed(evt);
-            }
-        });
-
         jScrollPane1.setViewportView(lista);
 
         javax.swing.GroupLayout left_sidebarLayout = new javax.swing.GroupLayout(left_sidebar);
@@ -244,9 +267,7 @@ public class Landing extends javax.swing.JFrame {
                             .addComponent(jSeparator1)
                             .addGroup(left_sidebarLayout.createSequentialGroup()
                                 .addGap(10, 10, 10)
-                                .addGroup(left_sidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(btnActualizar)
-                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 11, Short.MAX_VALUE))))
                     .addGroup(left_sidebarLayout.createSequentialGroup()
                         .addContainerGap()
@@ -265,9 +286,7 @@ public class Landing extends javax.swing.JFrame {
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(13, 13, 13)
-                .addComponent(btnActualizar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(47, 47, 47)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
@@ -322,67 +341,31 @@ public class Landing extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
-        
-        this.usuarios = Client.getOnlineUsers();
-        final DefaultListModel model = new DefaultListModel();
-        
-        for(String u:usuarios){
-            model.addElement(u);
-        }
-        lista.setModel(model);
-        
-    }//GEN-LAST:event_btnActualizarActionPerformed
-
     private void btnEnviarMensajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarMensajeActionPerformed
+        
         try {
-            
-            Message newe = new Message(Client.getID(),chatUser,mensajeAEnviar.getText());
-            Client.sendMessage(newe);            
-            kit.insertHTML(doc, doc.getLength(),"<font color='green'><b>"+Client.getID()+" dice :</b></font>" , 0, 0, null);
+            Message newe = new Message(client.getID(),chatUser,mensajeAEnviar.getText());            
+            if("".equals(newe.getMessage())){
+                newe.setMessage(this.client.getID()+"-"+chatUser +"-c "+cont++);
+            }
+            client.sendMessage(newe);            
+            kit.insertHTML(doc, doc.getLength(),"<font color='green'><b>"+client.getID()+" dice :</b></font>" , 0, 0, null);
             kit.insertHTML(doc, doc.getLength(), "<p>"+mensajeAEnviar.getText()+"</p>", 0, 0,null);
         } catch (BadLocationException ex) {
-            Logger.getLogger(Landing.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex);
         } catch (IOException ex) {
-            Logger.getLogger(Landing.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex);
         }
         mensajeAEnviar.setText("");
-        
     }//GEN-LAST:event_btnEnviarMensajeActionPerformed
 
-    private void agregarMensaje(String mensaje){
-        try {
-            textPanel.setEditorKit(kit);
-            textPanel.setDocument(doc);
-            kit.insertHTML(doc, doc.getLength(), "<b>"+mensaje, 0, 0, HTML.Tag.B);
-        } catch (BadLocationException ex) {
-            System.out.println(ex);
-        } catch (IOException ex) {
-            System.out.println(ex);
-        }        
-    }
-    
-    private void recibirMensaje(String mensaje, String enviador){
-        try {
-            textPanel.setEditorKit(kit);
-            textPanel.setDocument(doc);
-            kit.insertHTML(doc, doc.getLength(),"<font color='green'><b>"+enviador+" dice :</b></font>" , 0, 0, null);
-            kit.insertHTML(doc, doc.getLength(), "<p>"+mensaje+"</p>", 0, 0,null);
-        } catch (BadLocationException ex) {
-            System.out.println(ex);
-        } catch (IOException ex) {
-            System.out.println(ex);
-        } 
-    }
     
     private void cerrarSesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cerrarSesionActionPerformed
-
-        Client.go();
+        client.go();
         System.exit(0);
     }//GEN-LAST:event_cerrarSesionActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnActualizar;
     private javax.swing.JButton btnCancelarMensaje;
     private javax.swing.JButton btnEnviarMensaje;
     private javax.swing.JButton cerrarSesion;
