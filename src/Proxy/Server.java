@@ -29,14 +29,18 @@ public class Server extends UnicastRemoteObject implements IServer {
     private int i = 1;
     private ArrayList<String> log = new ArrayList();
     private ArrayList<String> usuarios;
+    public dbUsers dbu = new dbUsers();
 
     public Server() throws RemoteException {
         super();
         this.usuarios = new ArrayList();
         Clients = new HashMap<>();
         Requests = new LinkedList<>();
+        
+        dbu.connectDataBase();
+        log.add("User database connected.");
         log.add("Server up!");
-        System.out.println(log.get(0));
+        System.out.println(log.get(1));
         new Thread() {
             public void run() {
                 while (true) {
@@ -67,11 +71,18 @@ public class Server extends UnicastRemoteObject implements IServer {
             }
         }.start();
     }
+    @Override
+    public boolean authenClient(String user,String password){
+      //  return true;
+        return dbu.authClient(user, password);
+    }
 
     public void registerClient(IClient c) {
         try {
             Clients.put(c.getUser(), c);
-            c.setID(i++);
+            //c.setID(i++);
+            dbu.setClienteOnline(c.getUser());
+            c.setID(dbu.getClientid(c.getUser()));
             this.actualizarListado();
             log.add("Se registró al cliente " + c.getID() + ".");
         } catch (RemoteException ex) {
@@ -84,6 +95,7 @@ public class Server extends UnicastRemoteObject implements IServer {
         try {
             if (Clients.containsKey(c.getUser())) {
                 Clients.remove(c.getUser());
+                dbu.setClienteOffline(c.getUser());
                 log.add("Se removió al cliente " + c.getID() + ".");
             }
         } catch (RemoteException ex) {
@@ -112,6 +124,7 @@ public class Server extends UnicastRemoteObject implements IServer {
             log.add("Se recibió un broadcast desde " + Message.getStart());
             log.add("El mensaje es: "+Message.getMessage());
         } else {
+            dbu.insertMessage(Message.getStart(), Message.getEnd(), Message.getMessage());
             log.add("Se recibió mensaje desde " + Message.getStart() + " hacia " + Message.getEnd() + ".");
         }
         sendMessage();

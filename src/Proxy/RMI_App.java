@@ -11,7 +11,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Random;
-import java.util.Scanner;
 import javax.swing.JOptionPane;
 
 /**
@@ -151,31 +150,34 @@ public class RMI_App extends javax.swing.JFrame {
 
     private void btnIniciarSesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIniciarSesionActionPerformed
         // TODO add your handling code here:        
-        if(txtUser.getText().equals(txtPassword.getText())){
-            this.dispose();
-            Random r = new Random();
-            String u = String.valueOf(10000 + r.nextInt(9999)), p = u;
-            System.out.println("Client: " + u);            
-            try {
+        try{
+            Registry Reg = LocateRegistry.getRegistry("127.0.0.1", 1993);
+            IServer Server = (IServer) Reg.lookup("Chat");
+        
+            if(Server.authenClient(txtUser.getText(),txtPassword.getText())){ 
+                //txtUser.getText().equals(txtPassword.getText())){
+                this.dispose();
+                Random r = new Random();
+                //String u = String.valueOf(10000 + r.nextInt(9999)), p = u;
+                String u = txtUser.getText(),p=txtPassword.getText();
+                //try {
                 int i = 0;
-                Registry Reg = LocateRegistry.getRegistry("localhost", 1993);
-                IServer Server = (IServer) Reg.lookup("Chat");
+                //Registry Reg = LocateRegistry.getRegistry("localhost", 1993);
+                //IServer Server = (IServer) Reg.lookup("Chat");
                 Client Client = new Client(u,p,Server);
                 Server.registerClient(Client);
                 
-                clientePanel cp = new clientePanel();
-            } catch (RemoteException ex) {
+                clientePanel cp = new clientePanel();          
+            } else {
+                Toolkit.getDefaultToolkit().beep();
+                JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecto.", "Error", 0);  
+            }
+        } catch (RemoteException ex) {
                 System.out.println(ex.toString());
                 System.out.println("Error al conectarse al Servidor.");
-            } catch (NotBoundException ex) {
+        } catch (NotBoundException ex) {
                 System.out.println("Error en el nombre del Servidor.");
-            }            
-            
-        } else {
-            Toolkit.getDefaultToolkit().beep();
-            JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecto.", "Error", 0);  
-
-        }
+        }  
     }//GEN-LAST:event_btnIniciarSesionActionPerformed
 
     /**

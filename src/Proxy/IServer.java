@@ -26,4 +26,6 @@ public interface IServer extends Remote {
     public void getMessage(Message Message) throws RemoteException;
     
     public ArrayList<String> getUsers() throws RemoteException;
+    
+    public boolean authenClient(String user,String password)throws RemoteException;
 }
