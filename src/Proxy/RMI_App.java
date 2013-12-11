@@ -157,7 +157,7 @@ public class RMI_App extends javax.swing.JFrame {
             if(Server.authenClient(txtUser.getText(),txtPassword.getText())){ 
                 //txtUser.getText().equals(txtPassword.getText())){
                 this.dispose();
-                Random r = new Random();
+                //Random r = new Random();
                 //String u = String.valueOf(10000 + r.nextInt(9999)), p = u;
                 String u = txtUser.getText(),p=txtPassword.getText();
                 //try {

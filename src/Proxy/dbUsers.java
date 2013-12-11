@@ -115,9 +115,10 @@ public class dbUsers {
     }
     public void insertMessage(int u1,int u2,String m){
         
-        Date date = new Date();
-        
-        //String date = c.get(Calendar.YEAR)+"-"+c.get(Calendar.MONTH)+"-"+c.get(Calendar.DATE)+" "+c.get(Calendar.HOUR)+":"+c.get(Calendar.MINUTE)+":"+c.get(Calendar.SECOND);
+        //Date now = new Date();
+        //String date = now.
+        String date;
+        date = Calendar.getInstance().get(Calendar.YEAR)+"-"+Calendar.getInstance().get(Calendar.MONTH)+"-"+Calendar.getInstance().get(Calendar.DATE)+" "+Calendar.getInstance().get(Calendar.HOUR)+":"+Calendar.getInstance().get(Calendar.MINUTE)+":"+Calendar.getInstance().get(Calendar.SECOND);
         try {
             preparedStatement = connect.prepareStatement("INSERT INTO `db_os_users`.`mensajes` ( `id_user1`,`id_user2`,`mensaje`,`hora`) "+"VALUES ( '"+u1+"','"+u2+"','"+m+"','"+date+"')");
             preparedStatement.executeUpdate();
