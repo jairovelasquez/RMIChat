@@ -6,15 +6,14 @@ package Proxy;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Iterator;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
-
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
@@ -30,10 +29,10 @@ public class LandingV2 extends javax.swing.JFrame {
     private HTMLEditorKit kit = new HTMLEditorKit();
     private HTMLDocument doc = new HTMLDocument();
     private int chatUser;
-    private Client client;
+    private final Client client;
     int cont = 1;
     
-    public LandingV2(Client client) {        
+    public LandingV2(final Client client) {        
         initComponents();
         this.client = client;        
         right_sidebar.setVisible(false);        
@@ -47,8 +46,7 @@ public class LandingV2 extends javax.swing.JFrame {
         right_sidebar.setBackground(content);
         left_sidebar.setBackground(content);
         jScroll.getViewport().setBackground(containerColor);
-        txtuserid.setText("Soy el usuario: "+client.getID());
-        
+        txtuserid.setText("Bienvenido: "+client.getUser()+" -> "+client.getID());
         
         lista.addListSelectionListener(new ListSelectionListener(){
 
@@ -59,7 +57,24 @@ public class LandingV2 extends javax.swing.JFrame {
                         textPanel.setText("");
                     }
                     agregarMensaje("Chateando con: "+lista.getSelectedValue().toString());
-                    chatUser = Integer.parseInt(lista.getSelectedValue().toString());                    
+                    try {                        
+                        System.out.println("id obtenido es: "+client.getServer().getUserIdByUsername(lista.getSelectedValue().toString()));
+                        chatUser = (int) client.getServer().getUserIdByUsername(lista.getSelectedValue().toString());
+                        ArrayList<Message> mensaje = client.getServer().getConversationFromDatabase(client.getID(),chatUser);
+                        
+                        for(Message msj:mensaje){                            
+                            if(msj.getStart() == client.getID()){
+                                
+                                recibirMensaje(msj.getMessage(),""+msj.getEnd(),1);
+                            } else{
+                                recibirMensaje(msj.getMessage(),""+msj.getEnd(),0);
+                            }
+                            System.out.println("el end es: "+msj.getEnd());
+                            
+                        }
+                    } catch (RemoteException ex) {
+                        Logger.getLogger(LandingV2.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     right_sidebar.setVisible(true);
                 }
             }
@@ -71,7 +86,9 @@ public class LandingV2 extends javax.swing.JFrame {
         final DefaultListModel model = new DefaultListModel();
         
         for(String u:array){
-            model.addElement(u);
+            if(!u.equals(client.getUser())){
+                model.addElement(u);
+            }
         }
         lista.setModel(model);
     }
@@ -84,27 +101,59 @@ public class LandingV2 extends javax.swing.JFrame {
         try {
             textPanel.setEditorKit(kit);
             textPanel.setDocument(doc);
-            kit.insertHTML(doc, doc.getLength(), "<b>"+mensaje, 0, 0, HTML.Tag.B);
+            String style = "<style>\n"+
+                        "body{"
+                        + "background:rgb(240,240,240);"+
+                        "}" +
+"			.left{\n" +
+                                "background: rgb(165,207,231);\n" +
+                                "padding: 15px;\n" +
+                                "margin-right: 50px;\n" +
+                                "margin-left: 10px;\n" +
+                                "margin-bottom: 10px;\n" +
+                                "border-radius: 30px;\n" +
+                                "-moz-border-radius: 30px \n"+
+                                "-webkit-border-radius: 30px \n"+                                 
+                        "}\n" +
+                        ".right{\n" +
+                                "background: rgb(215,232,164);\n" +
+                                "padding: 15px;\n" +
+                                "margin-left: 50px;\n" +
+                                "margin-right: 10px;\n" +
+                                "margin-bottom: 10px;\n" +
+                                "border-radius: 30px;\n" +
+                                "-moz-border-radius: 30px \n"+
+                                "-webkit-border-radius: 30px \n"+
+                        "}\n" +
+                    "</style>";
+            kit.insertHTML(doc, doc.getLength(), style+"<b>"+mensaje+"</b><hr>", 0, 0, null);
         } catch (BadLocationException | IOException ex) {
             System.out.println(ex);
         }        
     }
     
-    public void paint(){        
-        for (Message item : this.client.getMessages()) {
-            if(item.getStart() == this.chatUser) {
-                recibirMensaje(item.getMessage(),item.getStart());                
-            }
+    public void paint(Message Message){                
+        if(Message.getStart() == this.chatUser) {
+            recibirMensaje(Message.getMessage(),""+Message.getStart(),0);
         }
     }
     
-    public void recibirMensaje(String mensaje, int enviador){
-        System.out.println("chatU: "+chatUser+" | Enviador: "+enviador);
+    public void recibirMensaje(String mensaje, String usuario, int tipo){        
         try {
             textPanel.setEditorKit(kit);
             textPanel.setDocument(doc);
-            kit.insertHTML(doc, doc.getLength(),"<font color='blue'><b>"+enviador+" dice :</b></font>" , 0, 0, null);
-            kit.insertHTML(doc, doc.getLength(), "<p>"+mensaje+"</p>", 0, 0,null);
+            if(tipo == 1){
+                //kit.insertHTML(doc, doc.getLength(),"<font color='green'><b>yo digo que:</b></font>" , 0, 0, null);
+                String div = "<div class='left'><p>"+mensaje+"</p></div>";
+                kit.insertHTML(doc, doc.getLength(),div, 0, 0,null);
+            } else {
+                //kit.insertHTML(doc, doc.getLength(),"<font color='blue'><b>"+usuario+" dice que:</b></font>" , 0, 0, null);
+                String div = "<div class='right'><p>"+mensaje+"</p></div>";
+                kit.insertHTML(doc, doc.getLength(), div, 0, 0,null);                                
+            }
+            
+            textPanel.setAutoscrolls(true);
+            
         } catch (BadLocationException ex) {
             System.out.println(ex);
         } catch (IOException ex) {
@@ -344,13 +393,13 @@ public class LandingV2 extends javax.swing.JFrame {
     private void btnEnviarMensajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarMensajeActionPerformed
         
         try {
-            Message newe = new Message(client.getID(),chatUser,mensajeAEnviar.getText());            
+            Message newe = new Message(client.getID(),chatUser,mensajeAEnviar.getText(),"");
             if("".equals(newe.getMessage())){
                 newe.setMessage(this.client.getID()+"-"+chatUser +"-c "+cont++);
             }
             client.sendMessage(newe);            
-            kit.insertHTML(doc, doc.getLength(),"<font color='green'><b>"+client.getID()+" dice :</b></font>" , 0, 0, null);
-            kit.insertHTML(doc, doc.getLength(), "<p>"+mensajeAEnviar.getText()+"</p>", 0, 0,null);
+            //kit.insertHTML(doc, doc.getLength(),"<font color='green'><b> yo digo que :</b></font>" , 0, 0, null);
+            kit.insertHTML(doc, doc.getLength(), "<div class='left'<p>"+mensajeAEnviar.getText()+"</p></div>", 0, 0,null);
         } catch (BadLocationException ex) {
             System.out.println(ex);
         } catch (IOException ex) {
@@ -388,3 +437,4 @@ public class LandingV2 extends javax.swing.JFrame {
     private javax.swing.JLabel txtuserid;
     // End of variables declaration//GEN-END:variables
 }
+

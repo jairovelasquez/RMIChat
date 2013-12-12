@@ -76,6 +76,18 @@ public class Server extends UnicastRemoteObject implements IServer {
       //  return true;
         return dbu.authClient(user, password);
     }
+    
+    public int insertClient(String usuario, String password, String nombre){
+        return dbu.insertClient(usuario, password,nombre);
+    }
+    
+    public ArrayList<Message> getConversationFromDatabase(int client, int friend){
+        return dbu.getConversation(client, friend);
+    }
+    
+    public int getUserIdByUsername(String username){
+        return dbu.getClientid(username);        
+    }
 
     public void registerClient(IClient c) {
         try {
@@ -97,6 +109,7 @@ public class Server extends UnicastRemoteObject implements IServer {
                 Clients.remove(c.getUser());
                 dbu.setClienteOffline(c.getUser());
                 log.add("Se removió al cliente " + c.getID() + ".");
+                this.actualizarListado();
             }
         } catch (RemoteException ex) {
             System.out.println("Fallo removiendo al cliente.");
@@ -144,6 +157,7 @@ public class Server extends UnicastRemoteObject implements IServer {
                 Requests.poll();
             } else { 
                 findUser(Requests.peek().getEnd()).getMessage(Requests.peek());
+                
                 log.add("Se envió mensaje hacia " + Requests.peek().getEnd() + " desde " + Requests.poll().getStart());
             }
         } catch (RemoteException ex) {
@@ -158,8 +172,7 @@ public class Server extends UnicastRemoteObject implements IServer {
             while(users.hasNext()) {
                 Object item = users.next();
                 
-                try {
-                    System.out.println("?????");
+                try {                    
                     ((IClient) item).seConectoUnUsuario();
                 } catch (RemoteException ex) {
                     Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
@@ -179,7 +192,7 @@ public class Server extends UnicastRemoteObject implements IServer {
                 Object item = users.next();
                 
                 try {
-                    usuarios.add(""+((IClient) item).getID());
+                    usuarios.add(""+((IClient) item).getUser());
                     System.out.print("User: " + ((IClient) item).getUser() + " Pass: " + ((IClient) item).getPass() + "\n");
                 } catch (RemoteException ex) {
                     System.out.println("Error getting client information.");

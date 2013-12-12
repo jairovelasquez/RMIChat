@@ -19,6 +19,14 @@ public interface IServer extends Remote {
     
     public void registerClient(IClient c) throws RemoteException;
     
+    public IClient findUser(int id) throws RemoteException;
+    
+    public int getUserIdByUsername(String username) throws RemoteException;
+    
+    public int insertClient(String u,String p,String nombre) throws RemoteException;
+    
+    public ArrayList<Message> getConversationFromDatabase(int client, int friend) throws RemoteException;
+    
     public void releaseClient(IClient c) throws RemoteException;
     
     public void sendMessage() throws RemoteException;

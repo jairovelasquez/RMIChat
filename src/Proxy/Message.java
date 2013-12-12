@@ -17,11 +17,13 @@ public class Message implements Serializable {
     private int Start;
     private int End;
     private String Message;
+    private String Hora;
 
-    public Message(int Start, int End, String Message) {
+    public Message(int Start, int End, String Message,String Hora) {
         this.Start = Start;
         this.End = End;
         this.Message = Message;
+        this.Hora = Hora;
     }
 
     public String getMessage() {

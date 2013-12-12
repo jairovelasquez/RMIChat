@@ -22,6 +22,10 @@ public class Client extends UnicastRemoteObject implements IClient {
     private final IServer Server;
     private Queue<Message> Messages;
 
+    public IServer getServer() {
+        return Server;
+    }
+
     public Queue<Message> getMessages() {
         return Messages;
     }
@@ -32,7 +36,7 @@ public class Client extends UnicastRemoteObject implements IClient {
         super();
         this.User = User;        
         this.Pass = Pass;        
-        this.Server = Server;        
+        this.Server = Server;
         Messages = new LinkedList<>();        
         new Thread() {
             public void run() {
@@ -52,7 +56,7 @@ public class Client extends UnicastRemoteObject implements IClient {
                             s.nextLine();
                             System.out.print("Message? ");
                             mess = s.nextLine();
-                            Message newe = new Message(getID(),usid,mess);
+                            Message newe = new Message(getID(),usid,mess,"");
                             System.out.println(newe.toString() + "\n");
                             sendMessage(newe);
                             break;
@@ -117,9 +121,9 @@ public class Client extends UnicastRemoteObject implements IClient {
     
     public void getMessage(Message Message) {
         Messages.add(Message);
-        this.landing.paint();
-        //this.landing.recibirMensaje(Message.getMessage(),Message.getStart());
-        
+        this.landing.paint(Message);
+        //String user = 
+        //this.landing.recibirMensaje(Message.getMessage(),""+Message.getStart(),0);
     }
     
     public void sendMessage(Message Message)  {
@@ -134,12 +138,16 @@ public class Client extends UnicastRemoteObject implements IClient {
         return "ID: " + this.ID + "\nUser: " + this.User + "\n";
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
-    public ArrayList<String> getOnlineUsers(){
+        public ArrayList<String> getOnlineUsers(){
         this.usuarios.clear();
         try {
             System.out.println("Tamaño de usuarios: "+Server.getUsers());
-            this.usuarios = Server.getUsers();
+            this.usuarios = Server.getUsers();            
             
         } catch (RemoteException ex) {
             System.out.println("Error al obtener los usuarios."+ex.toString());

@@ -4,6 +4,7 @@
  */
 package Proxy;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -25,6 +26,7 @@ public class dbUsers {
         try {
             connect = DriverManager.getConnection("jdbc:mysql://localhost/db_os_users?"
               + "user=root");//&password=123456");
+            System.out.println("se conecto");
         } catch (SQLException ex) {
             System.out.println("Error, no se pudo conectar a la base de datos.");
         }/*finally {
@@ -55,13 +57,14 @@ public class dbUsers {
         }
         return false;
     }
-    public void insertClient(String u, String p){
+    public int insertClient(String u, String p,String nombre){
         try {
-            preparedStatement = connect.prepareStatement("INSERT INTO `db_os_users`.`usuarios` ( `username`,`password`) "+"VALUES ( '"+u+"','"+p+"')");
-            preparedStatement.executeUpdate();
+            preparedStatement = connect.prepareStatement("INSERT INTO `db_os_users`.`usuarios` ( `username`,`password`,`nombre_completo`,`estado`) "+"VALUES ( '"+u+"','"+p+"','"+nombre+"','0')");
+            return preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("No se pudo agregar el cliente "+u+" a la base de datos.");
         }
+        return -1;
     }
     public String[] getClient(String u){
         String datos[]=new String[5];
@@ -128,4 +131,37 @@ public class dbUsers {
             //System.out.println("No se pudo agregar el cliente "+u+" a la base de datos.");
         }
     }
+    
+    public ArrayList<Message> getConversation(int client, int friend) {
+        
+        ArrayList<Message> conversation = new ArrayList();
+        
+        try {
+            statement = connect.createStatement();
+            
+            String query =
+                      "SELECT * FROM db_os_users.mensajes "
+                    + "WHERE (id_user1 = '"+client+"' "
+                    + "AND id_user2 = '"+friend+"') "
+                    + "OR (id_user1 = '"+friend+"' AND id_user2 = '"+client+"')";
+            
+            System.out.println(query);
+
+            resultSet = statement.executeQuery(query);
+            
+            while(resultSet.next()){
+                int user1 = resultSet.getInt("id_user1");
+                int user2 = resultSet.getInt("id_user2");
+                String mensaje = resultSet.getString("mensaje");
+                String hora = resultSet.getString("hora");
+                conversation.add(new Message(user1,user2,mensaje,hora));                
+            }                           
+            //return datos;
+        } catch (SQLException ex) {
+            System.out.println("Error extrayendo la informacion del usuario");
+        }        
+        return  conversation;
+    }
 }
+
+
